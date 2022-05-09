@@ -71,7 +71,22 @@ One note before you delve into your tasks: for each endpoint, you are expected t
 
 You will need to provide detailed documentation of your API endpoints including the URL, request parameters, and the response body. Use the example below as a reference.
 
-### Documentation Example
+### Documentation 
+`Errors`
+This API uses conventional HTTP response codes to indicate the success or failure of an API request. In general: Codes in the 2xx range indicate success. Codes in the 4xx range indicate an error that failed given the information provided (e.g., a required parameter was omitted, a charge failed, etc.). 
+
+`Error Handling`
+Errors are returned as JSON objects in the following format:
+{
+    "success": False, 
+    "error": 400,
+    "message": "bad request"
+}
+The API will return three error types when requests fail:
+400: Bad Request
+404: Resource Not Found
+422: Not Processable
+
 
 `GET '/api/v1.0/categories'`
 
@@ -89,6 +104,110 @@ You will need to provide detailed documentation of your API endpoints including 
   "6": "Sports"
 }
 ```
+`GET '/api/v1.0/questions'`
+Returns a dictionary of categories, the current category, list of questions objects, success value, and total number of questions
+Results are paginated in groups of 8. Include a request argument to choose page number, starting from 1.
+Sample: curl http://127.0.0.1:5000/questions
+
+```json
+{
+  "categories": {
+    "1": "Science",
+    "2": "Art",
+    "3": "Geography",
+    "4": "History",
+    "5": "Entertainment",
+    "6": "Sports"
+  },
+  "current_category": null,
+  "questions": [
+    {
+      "answer": "Tom Cruise",
+      "category": 5,
+      "difficulty": 4,
+      "id": 4,
+      "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?"
+    },
+  ],
+  "success": true,
+  "total_questions": 1
+  ```
+`GET '/api/v1.0/categories/<int:category_id>/questions'`
+Retruns the current category, all questions for this category as a list, success and the total number of questions for the current category. 
+Sample: curl http://127.0.0.1:5000/categories/1/questions
+
+```json
+{
+  "current_category": "Science",
+  "questions": [
+    {
+      "answer": "The Liver",
+      "category": 1,
+      "difficulty": 4,
+      "id": 20,
+      "question": "What is the heaviest organ in the human body?"
+    },
+  ],
+  "success": true,
+  "total_questions": 1
+}
+```
+`DELETE '/api/v1.0/questions/<int:question_id>'`
+Deletes the question from the trivia db. 
+Returns success message. 
+Sample: curl http://127.0.0.1:5000/questions/1 -X DELETE
+
+```json
+{
+  "success": true
+}
+```
+
+`POST '/api/v1.0/questions>'`
+Creates a new question. 
+Answer, category, difficulty and question should be given, if not value is set to None.
+Returns success statement, id of newly created question, list of questions and total number of questions.
+Sample: curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d '{"answer":"KoRn", "question":"Who sings the song Here to stay?", "difficulty":1, "category":"2"}'
+```json
+{
+  "success": true,
+  "created" : 352,
+  "questions" : [
+    {
+      "answer": "The Liver",
+      "category": 1,
+      "difficulty": 4,
+      "id": 20,
+      "question": "What is the heaviest organ in the human body?"
+    },
+  ],
+  "total_questions": 1
+}
+```
+`POST '/api/v1.0/quizzes>'`
+Creates a new quiz. 
+Category and previousQuestion should be given, if not value is set to None.
+Returns success statement, a new question and list of previous questions.
+Sample: curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"quiz_category":{"type":"click","id": 0},"previous_questions":[1]}'
+
+
+```json
+{
+  "previousQuestion": [
+    1,
+    37
+  ],
+  "question": {
+    "answer": "Sober",
+    "category": 2,
+    "difficulty": 3,
+    "id": 37,
+    "question": "Which Tool song starts with \"There s a shadow just behind me\""
+  },
+  "success": true
+}
+```
+
 
 ## Testing
 
