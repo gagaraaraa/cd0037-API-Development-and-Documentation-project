@@ -255,6 +255,7 @@ def create_app(test_config=None):
 
             if quizCategory == 0:
                 questions = Question.query.all()
+                # questions = Question.query.filter(Question.id.not_in(previousQuestion)).all
             else: 
                 questions = Question.query.filter(Question.category == quizCategory).all()
             for question in questions:
@@ -262,7 +263,9 @@ def create_app(test_config=None):
                     selection.append(question)
             
             if len(selection) == 0:
-                abort(422)
+                return jsonify({
+                    'question': False
+                })
 
             random_question = random.choice(selection)
             previousQuestion.append(random_question.id)

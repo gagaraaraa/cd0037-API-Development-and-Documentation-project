@@ -1,10 +1,19 @@
 import os
+from os.path import join, dirname
+from dotenv import load_dotenv
 import unittest
 import json
 from flask_sqlalchemy import SQLAlchemy
 
 from flaskr import create_app
 from models import setup_db, Question, Category
+
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
+USERNAME = os.environ.get("USERNAME")
+PASSWORD = os.environ.get("PASSWORD")
+HOSTNAME = os.environ.get("HOSTNAME")
 
 
 class TriviaTestCase(unittest.TestCase):
@@ -14,9 +23,9 @@ class TriviaTestCase(unittest.TestCase):
         """Define test variables and initialize app."""
         self.app = create_app()
         self.client = self.app.test_client
-        # self.database_name = "trivia"
+        self.database_name = "trivia_test"
         # self.database_path = "postgresql://{}/{}".format('localhost:5432', self.database_name)
-        self.database_path = 'postgresql://postgres:postgres@localhost:5432/trivia'
+        self.database_path = f'postgresql://{USERNAME}:{PASSWORD}@localhost:{HOSTNAME}/{self.database_name}'
         setup_db(self.app, self.database_path)
 
         self.new_question = {
@@ -89,7 +98,7 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client().delete('/questions/30')
         data = json.loads(res.data)
 
-        question = Question.query.filter(Question.id == 30).one_or_none()
+        question = Question.query.filter(Question.id == 5).one_or_none()
         
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
